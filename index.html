@@ -36,9 +36,19 @@
 
     <main>
       <section id="homeView" class="view active">
-        <div class="hello-block">
-          <h1>Olá!</h1>
-          <p id="todaySummary">Tens serviços hoje</p>
+        <div class="home-hero">
+          <div class="hello-block">
+            <h1>Olá!</h1>
+            <p id="todaySummary">Tens serviços hoje</p>
+          </div>
+          <button class="home-date-card" id="heroDateCard" data-go="agendaView" aria-label="Abrir agenda">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+            <div>
+              <span id="heroDateWeekday">Hoje</span>
+              <strong id="heroDateFull">2 de outubro de 2025</strong>
+            </div>
+            <b>›</b>
+          </button>
         </div>
 
         <div id="weekStrip" class="week-strip" aria-label="Dias da semana"></div>
@@ -116,15 +126,21 @@
           <div>
             <p class="eyebrow">CONTACTOS</p>
             <h1>Clientes</h1>
-            <p>Histórico e serviços de cada cliente.</p>
+            <p>Contactos e histórico.</p>
           </div>
           <button class="round-add" id="newClientBtn" aria-label="Novo cliente">+</button>
         </div>
-        <label class="search-box">
+        <label class="search-box client-search-box">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
-          <input id="clientSearch" placeholder="Pesquisar cliente" />
+          <input id="clientSearch" placeholder="Pesquisar clientes por nome, localidade..." />
         </label>
-        <div id="clientsList" class="clients-list"></div>
+        <button class="client-promo-card" id="promoNewClient" type="button">
+          <span class="promo-icon">+</span>
+          <div><strong>Adicionar novo cliente</strong><small>Guarda contactos e histórico de serviços.</small></div>
+          <b>›</b>
+        </button>
+        <div class="section-title-row client-section-head"><h2>Os meus clientes</h2><span id="clientCountLabel">0 clientes</span></div>
+        <div id="clientsList" class="clients-list rich-clients-list"></div>
       </section>
 
       <section id="moreView" class="view">
