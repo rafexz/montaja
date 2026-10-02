@@ -1,0 +1,23 @@
+{
+  "name": "MontaJá",
+  "short_name": "MontaJá",
+  "description": "Gestão de montagens, clientes, faturação e zonas de serviço",
+  "start_url": "./index.html?v=20261002",
+  "display": "standalone",
+  "background_color": "#09090a",
+  "theme_color": "#09090a",
+  "icons": [
+    {
+      "src": "assets/montaja-icon-192-20261002.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/montaja-icon-512-20261002.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

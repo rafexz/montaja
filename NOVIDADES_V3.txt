@@ -1,0 +1,16 @@
+MONTAJÁ V3
+
+Novidades desta versão:
+- Calendário mensal grande na Agenda.
+- Dias com serviços mostram um contador laranja.
+- Botões rápidos Hoje, Amanhã e Ver semana.
+- Ao adicionar um serviço, a data é escolhida num calendário grande e visual.
+- Atalhos Hoje, Amanhã e +1 semana no formulário.
+- É possível editar um serviço agendado.
+- É possível eliminar um serviço agendado com confirmação.
+- Ícones e cores variam conforme o tipo de serviço (montagem, cama, mesa/secretária, cadeira/sofá, estante/prateleira).
+- O ícone de montagem usa agora um martelo.
+- Ao abrir a app num novo dia, o ecrã inicial começa no dia atual.
+- Se a app ficar aberta à meia-noite, muda automaticamente para o novo dia.
+
+Os dados continuam guardados localmente neste dispositivo/browser nesta fase.

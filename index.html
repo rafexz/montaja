@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0909" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MontaJá" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/montaja-home-icon-20261001.png" />
+  <link rel="icon" type="image/png" href="assets/montaja-home-icon-20261001.png" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>MontaJá</title>
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="brand" data-go="homeView" aria-label="MontaJá - Início">
+        <img class="brand-logo" src="assets/logo.png" alt="MontaJá" />
+      </button>
+      <div class="top-actions">
+        <button class="profile-button" id="profileBtn" aria-label="Abrir perfil">
+          <img src="assets/profile.jpg" alt="Foto de perfil" />
+        </button>
+        <button class="bell-button" id="notificationsBtn" aria-label="Notificações">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+          <span class="notification-dot" id="notificationDot"></span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section id="homeView" class="view active">
+        <div class="hello-block">
+          <h1>Olá!</h1>
+          <p id="todaySummary">Tens serviços hoje</p>
+        </div>
+
+        <div id="weekStrip" class="week-strip" aria-label="Dias da semana"></div>
+
+        <button class="earnings-card" id="earningsCard" aria-label="Ver faturação">
+          <div class="coin-icon" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div class="earnings-copy">
+            <span>Ganhos de hoje</span>
+            <strong id="revenueStat">0 €</strong>
+            <small id="revenueDelta">Serviços concluídos hoje</small>
+          </div>
+          <div class="mini-chart" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+          <span class="earnings-arrow">›</span>
+        </button>
+
+        <div class="section-title-row">
+          <h2>Próximos serviços</h2>
+          <button class="text-action" id="viewAllJobs">Ver todos <span>›</span></button>
+        </div>
+        <div id="jobsList" class="jobs-list"></div>
+      </section>
+
+      <section id="agendaView" class="view">
+        <div class="page-head">
+          <p class="eyebrow">ORGANIZAÇÃO</p>
+          <h1>Agenda</h1>
+          <p>Escolhe um dia no calendário e vê o que tens marcado.</p>
+        </div>
+
+        <div class="calendar-card agenda-calendar-card">
+          <div class="calendar-head">
+            <button type="button" class="calendar-arrow" id="agendaPrevMonth" aria-label="Mês anterior">‹</button>
+            <div>
+              <small>CALENDÁRIO</small>
+              <strong id="agendaMonthTitle"></strong>
+            </div>
+            <button type="button" class="calendar-arrow" id="agendaNextMonth" aria-label="Mês seguinte">›</button>
+          </div>
+          <div class="calendar-weekdays" aria-hidden="true"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div>
+          <div id="agendaCalendar" class="month-grid"></div>
+          <div class="calendar-footer">
+            <button type="button" class="chip" id="agendaTodayBtn">Hoje</button>
+            <button type="button" class="chip" id="agendaTomorrowBtn">Amanhã</button>
+            <button type="button" class="chip" id="agendaWeekBtn">Ver semana</button>
+          </div>
+        </div>
+
+        <div class="agenda-selection-row">
+          <div>
+            <small>SELECIONADO</small>
+            <strong id="agendaDateLabel"></strong>
+          </div>
+          <button type="button" class="round-add small-round" id="agendaAddBtn" aria-label="Adicionar serviço nesta data">+</button>
+        </div>
+        <div class="agenda-filter-card">
+          <label class="search-box compact-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+            <input id="jobSearch" placeholder="Pesquisar serviço ou cliente" />
+          </label>
+          <div class="filter-row">
+            <select id="jobTypeFilter" aria-label="Filtrar por tipo"><option value="all">Todos os tipos</option><option value="tools">Montagem</option><option value="bed">Cama</option><option value="table">Mesa / secretária</option><option value="chair">Cadeira / sofá</option><option value="shelf">Estante / prateleira</option></select>
+            <select id="jobStatusFilter" aria-label="Filtrar por estado"><option value="all">Todos os estados</option><option value="scheduled">Agendado</option><option value="active">Em andamento</option></select>
+            <select id="jobTagFilter" aria-label="Filtrar por etiqueta"><option value="all">Todas as tags</option></select>
+          </div>
+          <div class="filter-row">
+            <select id="jobClientFilter" aria-label="Filtrar por cliente"><option value="all">Todos os clientes</option></select>
+            <button type="button" class="secondary-btn filter-clear" id="clearJobFilters">Limpar filtros</button>
+          </div>
+        </div>
+        <div id="agendaList" class="timeline"></div>
+      </section>
+
+      <section id="clientsView" class="view">
+        <div class="page-head with-action">
+          <div>
+            <p class="eyebrow">CONTACTOS</p>
+            <h1>Clientes</h1>
+            <p>Histórico e serviços de cada cliente.</p>
+          </div>
+          <button class="round-add" id="newClientBtn" aria-label="Novo cliente">+</button>
+        </div>
+        <label class="search-box">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <input id="clientSearch" placeholder="Pesquisar cliente" />
+        </label>
+        <div id="clientsList" class="clients-list"></div>
+      </section>
+
+      <section id="moreView" class="view">
+        <div class="page-head">
+          <p class="eyebrow">MONTAJÁ</p>
+          <h1>Mais</h1>
+          <p>Resumo e definições da tua conta.</p>
+        </div>
+        <div class="brand-card">
+          <img class="brand-logo-large" src="assets/logo.png" alt="MontaJá" />
+          <p>Montagem & serviços ao domicílio</p>
+        </div>
+        <div class="monthly-dashboard">
+          <div class="section-title-row"><h2>Este mês</h2><span class="month-badge" id="monthBadge"></span></div>
+          <div class="monthly-grid">
+            <div class="metric-card featured"><span>Faturado</span><strong id="monthRevenue">0 €</strong><small id="monthCompare">Este mês</small></div>
+            <div class="metric-card"><span>Previsto</span><strong id="monthForecast">0 €</strong><small>Serviços por concluir</small></div>
+            <div class="metric-card"><span>Serviços</span><strong id="monthServices">0</strong><small>Concluídos + agendados</small></div>
+            <div class="metric-card"><span>Ticket médio</span><strong id="monthAverage">0 €</strong><small>Por serviço concluído</small></div>
+          </div>
+          <div class="month-progress-card">
+            <div><span>Progresso mensal</span><strong id="monthProgressText">0 € faturados</strong></div>
+            <div class="progress-track"><i id="monthProgressBar"></i></div>
+          </div>
+        </div>
+
+        <div class="map-section">
+          <div class="section-title-row"><h2>Mapa de zonas</h2><button type="button" class="text-action" id="refreshMapBtn">Atualizar</button></div>
+          <div class="map-card">
+            <div id="zonesMap" class="zones-map" aria-label="Mapa das zonas de trabalho"></div>
+            <div id="mapFallback" class="map-fallback hidden">O mapa precisa de internet para carregar. As zonas continuam listadas abaixo.</div>
+          </div>
+          <div id="zoneRanking" class="zone-ranking"></div>
+        </div>
+
+        <div class="theme-card">
+          <div>
+            <span class="settings-icon">◐</span>
+            <div><strong>Aparência</strong><small>A preferência fica guardada neste dispositivo</small></div>
+          </div>
+          <div class="theme-options" role="group" aria-label="Tema da aplicação">
+            <button type="button" data-theme-choice="dark">Escuro</button>
+            <button type="button" data-theme-choice="light">Claro</button>
+            <button type="button" data-theme-choice="system">Automático</button>
+          </div>
+        </div>
+
+        <div class="settings-list">
+          <button id="historyButton"><span class="settings-icon">✓</span><div><strong>Serviços concluídos</strong><small id="historyCount">0 trabalhos guardados</small></div><b>›</b></button>
+          <button id="billingButton"><span class="settings-icon">€</span><div><strong>Faturação</strong><small id="allRevenue">0 € no total</small></div><b>›</b></button>
+          <button><span class="settings-icon">⌂</span><div><strong>Modo app</strong><small>Preparado para iPhone / PWA</small></div><b>›</b></button>
+          <button id="syncButton"><span class="settings-icon">☁</span><div><strong>Sincronização</strong><small id="syncSummary">iPhone ↔ PC</small></div><b>›</b></button>
+        </div>
+        <div class="history-block">
+          <div class="section-title-row"><h2>Concluídos</h2></div>
+          <div id="historyList" class="history-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navegação principal">
+      <button class="nav-item active" data-view="homeView" aria-label="Início">
+        <svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><small>Início</small>
+      </button>
+      <button class="nav-item" data-view="agendaView" aria-label="Agenda">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><small>Agenda</small>
+      </button>
+      <button class="nav-main" id="quickAdd" aria-label="Novo serviço"><span>+</span></button>
+      <button class="nav-item" data-view="clientsView" aria-label="Clientes">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><small>Clientes</small>
+      </button>
+      <button class="nav-item" data-view="moreView" aria-label="Mais">
+        <svg viewBox="0 0 24 24"><circle cx="5" cy="5" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="19" cy="5" r="1.5"/><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="19" r="1.5"/><circle cx="12" cy="19" r="1.5"/><circle cx="19" cy="19" r="1.5"/></svg><small>Mais</small>
+      </button>
+    </nav>
+  </div>
+
+  <dialog id="jobDialog" class="sheet-dialog"><div class="sheet-handle"></div><div id="jobDialogContent"></div></dialog>
+
+  <dialog id="newJobDialog" class="sheet-dialog">
+    <div class="sheet-handle"></div>
+    <form id="newJobForm" class="form-stack">
+      <input type="hidden" name="jobId" id="jobIdField" />
+      <input type="hidden" name="date" id="jobDateField" />
+      <div class="dialog-head">
+        <div><p class="eyebrow" id="jobFormEyebrow">NOVO SERVIÇO</p><h2 id="jobFormTitle">Adicionar à agenda</h2></div>
+        <button type="button" class="icon-btn" data-close="newJobDialog">×</button>
+      </div>
+      <label>Cliente<input required id="jobClientInput" name="client" list="clientOptions" placeholder="Ex.: João Silva" autocomplete="off" /></label>
+      <datalist id="clientOptions"></datalist>
+      <div id="recurringClientCard" class="recurring-client-card hidden"></div>
+      <label>Serviço<input required name="title" placeholder="Ex.: Montagem de roupeiro" /></label>
+      <div class="tags-field">
+        <div class="tags-field-head"><span>Tags</span><small>Opcional · toca para adicionar</small></div>
+        <div class="tag-presets" id="tagPresets">
+          <button type="button" data-tag="IKEA">IKEA</button>
+          <button type="button" data-tag="JYSK">JYSK</button>
+          <button type="button" data-tag="Conforama">Conforama</button>
+          <button type="button" data-tag="Urgente">Urgente</button>
+          <button type="button" data-tag="Recorrente">Recorrente</button>
+          <button type="button" data-tag="Complexo">Complexo</button>
+        </div>
+        <div class="tag-custom-row">
+          <input id="customTagInput" placeholder="Outra tag..." maxlength="24" />
+          <button type="button" class="secondary-btn" id="addCustomTag">Adicionar</button>
+        </div>
+        <div id="selectedTags" class="selected-tags"></div>
+      </div>
+      <label>Zona<input required name="location" placeholder="Ex.: Santarém" /></label>
+
+      <div class="date-picker-card">
+        <div class="selected-date-display">
+          <span>DATA DO SERVIÇO</span>
+          <strong id="jobDateDisplay">Escolher data</strong>
+        </div>
+        <div class="calendar-head compact">
+          <button type="button" class="calendar-arrow" id="jobPrevMonth" aria-label="Mês anterior">‹</button>
+          <strong id="jobMonthTitle"></strong>
+          <button type="button" class="calendar-arrow" id="jobNextMonth" aria-label="Mês seguinte">›</button>
+        </div>
+        <div class="calendar-weekdays" aria-hidden="true"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div>
+        <div id="jobCalendar" class="month-grid month-grid-form"></div>
+        <div class="quick-date-row">
+          <button type="button" class="mini-date-btn" data-job-quick="today">Hoje</button>
+          <button type="button" class="mini-date-btn" data-job-quick="tomorrow">Amanhã</button>
+          <button type="button" class="mini-date-btn" data-job-quick="nextweek">+ 1 semana</button>
+        </div>
+      </div>
+
+      <div class="time-price-grid">
+        <label>Hora
+          <div class="smart-time" id="smartTime">
+            <input id="jobHour" inputmode="numeric" maxlength="2" placeholder="HH" aria-label="Hora" />
+            <span>:</span>
+            <input id="jobMinute" inputmode="numeric" maxlength="2" placeholder="MM" aria-label="Minutos" />
+            <input type="hidden" name="time" id="jobTimeField" />
+          </div>
+        </label>
+        <label>Preço (€)<input required name="price" id="jobPriceInput" type="number" min="0" step="0.01" /></label>
+      </div>
+      <div id="busyTimes" class="busy-times"></div>
+      <div id="timeWarning" class="time-warning hidden"></div>
+      <label>Notas<textarea name="notes" rows="3" placeholder="Marca, modelo, detalhes..."></textarea></label>
+      <button class="primary-btn" id="jobFormSubmit" type="submit">Guardar serviço</button>
+    </form>
+  </dialog>
+
+  <dialog id="newClientDialog" class="sheet-dialog">
+    <div class="sheet-handle"></div>
+    <form id="newClientForm" class="form-stack">
+      <div class="dialog-head"><div><p class="eyebrow">NOVO CLIENTE</p><h2>Adicionar contacto</h2></div><button type="button" class="icon-btn" data-close="newClientDialog">×</button></div>
+      <label>Nome<input required name="name" placeholder="Nome do cliente" /></label>
+      <label>Telemóvel<input name="phone" inputmode="tel" placeholder="9xx xxx xxx" /></label>
+      <label>Zona<input name="location" placeholder="Ex.: Coruche" /></label>
+      <label>Notas<textarea name="notes" rows="3" placeholder="Preferências, detalhes..."></textarea></label>
+      <button class="primary-btn" type="submit">Guardar cliente</button>
+    </form>
+  </dialog>
+
+  <dialog id="clientDialog" class="sheet-dialog"><div class="sheet-handle"></div><div id="clientDialogContent"></div></dialog>
+
+  <dialog id="profileDialog" class="sheet-dialog small-sheet">
+    <div class="sheet-handle"></div>
+    <div class="profile-sheet">
+      <button class="icon-btn profile-close" data-close="profileDialog">×</button>
+      <img class="profile-sheet-photo" src="assets/profile.jpg" alt="Foto de perfil" />
+      <h2>Perfil MontaJá</h2>
+      <p>A tua área pessoal e profissional.</p>
+      <div class="profile-actions">
+        <button><span>👤</span><div><strong>Dados do perfil</strong><small>Nome, contacto e fotografia</small></div><b>›</b></button>
+        <button><span>🏠</span><div><strong>Dados da empresa</strong><small>Marca, zona e serviços</small></div><b>›</b></button>
+        <button><span>⚙️</span><div><strong>Definições</strong><small>Preferências da aplicação</small></div><b>›</b></button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="notificationsDialog" class="sheet-dialog small-sheet">
+    <div class="sheet-handle"></div>
+    <div class="dialog-head"><div><p class="eyebrow">ATIVIDADE</p><h2>Notificações</h2></div><button type="button" class="icon-btn" data-close="notificationsDialog">×</button></div>
+    <div id="notificationsList" class="notifications-list"></div>
+  </dialog>
+
+  <dialog id="confirmDeleteDialog" class="sheet-dialog small-sheet">
+    <div class="sheet-handle"></div>
+    <div class="delete-confirm">
+      <div class="delete-symbol">⌫</div>
+      <h2>Eliminar serviço?</h2>
+      <p>Esta ação remove o serviço da agenda. Não dá para desfazer.</p>
+      <div class="delete-actions">
+        <button type="button" class="secondary-btn" id="cancelDeleteJob">Cancelar</button>
+        <button type="button" class="danger-solid-btn" id="confirmDeleteJob">Eliminar</button>
+      </div>
+    </div>
+  </dialog>
+
+
+  <dialog id="syncDialog" class="sheet-dialog">
+    <div class="sheet-handle"></div>
+    <div class="dialog-head"><div><p class="eyebrow">NUVEM</p><h2>Sincronização</h2></div><button type="button" class="icon-btn" data-close="syncDialog">×</button></div>
+    <div class="sync-intro"><strong>Usa os mesmos dados no iPhone e no PC</strong><p>A app continua a funcionar localmente. Quando ligares uma conta Supabase, os serviços, clientes e comprovativos são sincronizados.</p></div>
+    <div id="cloudSetupFields" class="form-stack">
+      <label>Supabase URL<input id="syncUrl" placeholder="https://xxxx.supabase.co" /></label>
+      <label>Anon key<input id="syncKey" type="password" placeholder="Chave anon/public" /></label>
+      <button type="button" class="secondary-btn" id="saveCloudConfig">Guardar ligação</button>
+    </div>
+    <div class="form-stack sync-auth">
+      <label>Email<input id="syncEmail" type="email" autocomplete="email" placeholder="teu@email.pt" /></label>
+      <label>Palavra-passe<input id="syncPassword" type="password" autocomplete="current-password" placeholder="Mínimo 6 caracteres" /></label>
+      <div class="sync-actions">
+        <button type="button" class="secondary-btn" id="syncSignUp">Criar conta</button>
+        <button type="button" class="primary-btn" id="syncSignIn">Entrar</button>
+      </div>
+    </div>
+    <div class="sync-status-card">
+      <span>ESTADO</span><strong id="syncStatus">Não ligado</strong><small id="syncLastRun">Sem sincronização</small>
+    </div>
+    <div class="sync-actions sync-bottom-actions">
+      <button type="button" class="primary-btn" id="syncNowBtn">Sincronizar agora</button>
+      <button type="button" class="secondary-btn" id="syncSignOut">Sair da conta</button>
+    </div>
+    <p class="sync-note">A configuração segura da base de dados está no ficheiro <b>SUPABASE_SETUP.sql</b> incluído no ZIP.</p>
+  </dialog>
+
+  <template id="jobDetailsTemplate">
+    <div class="dialog-head"><div><p class="eyebrow">SERVIÇO</p><h2 data-bind="title"></h2></div><button type="button" class="icon-btn" data-close="jobDialog">×</button></div>
+    <div class="detail-grid">
+      <div><span>Cliente</span><strong data-bind="client"></strong></div><div><span>Local</span><strong data-bind="location"></strong></div>
+      <div><span>Data e hora</span><strong data-bind="time"></strong></div><div><span>Valor</span><strong data-bind="price"></strong></div>
+    </div>
+    <div class="notes-box"><span>Notas</span><p data-bind="notes"></p></div>
+    <div class="job-tags-detail hidden" id="jobTagsDetail"></div>
+    <div class="job-actions-inline" id="jobManagementActions">
+      <button type="button" class="secondary-btn" id="editJobBtn">Editar</button>
+      <button type="button" class="delete-link-btn" id="deleteJobBtn">Eliminar</button>
+    </div>
+    <div id="timerArea"></div>
+  </template>
+
+  <template id="finishTemplate">
+    <div class="finish-flow">
+      <div class="timer-summary"><span>Tempo total</span><strong id="finalDuration">00:00:00</strong></div>
+      <label>Método de pagamento<select id="paymentMethod"><option>MB WAY</option><option>Dinheiro</option><option>Transferência</option><option>Cartão</option></select></label>
+      <div class="signature-wrap"><div class="signature-head"><div><span>Assinatura do cliente</span><small>Rubrica diretamente no ecrã</small></div><button id="clearSignature" type="button" class="text-action">Limpar</button></div><canvas id="signatureCanvas" width="900" height="360"></canvas></div>
+      <button id="confirmFinish" class="primary-btn">Concluir serviço ✓</button>
+    </div>
+  </template>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="cloud-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

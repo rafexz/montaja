@@ -1,0 +1,20 @@
+MONTAJÁ — SINCRONIZAÇÃO IPHONE + PC
+
+1) Cria um projeto gratuito em Supabase.
+2) No Supabase abre SQL Editor e executa o ficheiro SUPABASE_SETUP.sql deste ZIP.
+3) Em Project Settings / API copia:
+   - Project URL
+   - chave anon/publishable (NÃO uses service_role)
+4) Tens duas opções:
+   A) Melhor: abre cloud-config.js e cola o URL e a chave. Depois publica a pasta.
+   B) Ou: abre MontaJá > Mais > Sincronização e cola os dois valores no próprio dispositivo.
+5) Em MontaJá > Mais > Sincronização cria uma conta com email + palavra-passe.
+6) No outro dispositivo abre a MESMA app publicada e entra com a MESMA conta.
+7) Carrega em "Sincronizar agora".
+
+A app continua a guardar tudo localmente mesmo sem internet. Quando voltares a ter ligação, tenta sincronizar automaticamente.
+
+IMPORTANTE
+- A chave anon/publishable é a chave correta para frontend.
+- Nunca coloques a chave service_role na app.
+- As regras RLS do ficheiro SQL fazem com que cada conta só veja os seus próprios dados.

@@ -1,0 +1,20 @@
+MONTAJÁ — TROCAR IMAGENS
+
+Só precisas de mexer na pasta assets:
+
+1) logo.png
+   É o logótipo MontaJá mostrado no topo e na área Mais.
+   Mantém fundo transparente (PNG) para ficar bonito na aplicação.
+
+2) app-icon.png
+   É o ícone usado quando instalares a aplicação no iPhone.
+   Ideal: imagem quadrada 512 x 512 px.
+
+3) profile.jpg
+   É a fotografia circular do canto superior direito.
+   Podes substituir por outra JPG ou PNG, mas mantém o nome profile.jpg.
+
+IMPORTANTE:
+- substitui o ficheiro mantendo exatamente o mesmo nome;
+- se a aplicação estiver publicada e continuares a ver a imagem antiga, atualiza/recarrega a página;
+- no iPhone, se mudares o app-icon depois de já teres adicionado a app ao ecrã principal, pode ser necessário remover o atalho e adicioná-lo novamente.

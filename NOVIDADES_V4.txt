@@ -1,0 +1,13 @@
+MONTAJÁ V4
+
+- Comprovativo de serviço imprimível / guardável em PDF
+- Pesquisa de serviços por nome, cliente, zona e notas
+- Filtros por tipo, estado e cliente
+- Cliente recorrente detetado automaticamente e zona preenchida
+- Notificações úteis: serviço dentro de 1h, serviços de amanhã, conflitos, contactos em falta
+- Horas ocupadas mostradas no formulário
+- Aviso de serviços a menos de 90 minutos
+- Bloqueio de duas marcações à mesma hora
+- Hora inteligente HH:MM: ao completar as horas salta automaticamente para os minutos
+- Sincronização opcional iPhone <-> PC através de Supabase
+- Mantém funcionamento local/offline

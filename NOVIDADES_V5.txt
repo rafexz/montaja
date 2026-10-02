@@ -1,0 +1,11 @@
+MONTAJÁ PREMIUM V5
+
+NOVO:
+- Tags por serviço (IKEA, JYSK, Conforama, Urgente, Recorrente, Complexo e tags personalizadas).
+- Filtro por tags na Agenda.
+- Tema Escuro, Claro ou Automático, com preferência guardada no dispositivo.
+- Faturação mensal: faturado, previsto, número de serviços e ticket médio.
+- Mapa de zonas com OpenStreetMap/Leaflet e ranking de localidades.
+- O mapa agrega serviços agendados e concluídos; o botão Atualizar tenta localizar zonas novas.
+
+Mantém tudo da V4: calendário, pesquisa/filtros, cliente recorrente, conflitos de horários, notificações, comprovativos, assinatura e sincronização opcional iPhone ↔ PC via Supabase.

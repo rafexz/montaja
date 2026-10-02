@@ -1,0 +1,20 @@
+MONTAJÁ — COMO METER NO IPHONE
+
+A app precisa de estar publicada num endereço HTTPS. Abrir o index.html diretamente no Mac serve para testar, mas não instala corretamente no iPhone.
+
+OPÇÃO SIMPLES — NETLIFY
+1) Descompacta o ZIP MontaJá.
+2) Se quiseres sincronização, configura primeiro cloud-config.js e o Supabase (ver COMO_SINCRONIZAR.txt).
+3) Publica a pasta inteira num serviço de alojamento estático com HTTPS, por exemplo Netlify, Vercel ou GitHub Pages.
+4) Vais receber um endereço semelhante a https://montaja-xxxxx.netlify.app
+5) Abre esse endereço no SAFARI do iPhone.
+6) Toca no botão Partilhar.
+7) Escolhe "Adicionar ao ecrã principal".
+8) Confirma o nome MontaJá e toca em Adicionar.
+
+O ícone assets/app-icon.png aparece no ecrã principal e a app abre em modo standalone.
+
+IMPORTANTE
+- Usa Safari para adicionar a app ao ecrã principal.
+- Mantém sempre os ficheiros manifest.webmanifest, sw.js e assets/app-icon.png no site.
+- Para sincronizar iPhone e PC, abre a mesma URL nos dois e entra na mesma conta em Mais > Sincronização.
