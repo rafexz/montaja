@@ -1,0 +1,12 @@
+MontaJá GitHub V5.2
+
+Esta versão coloca logo.png, profile.jpg e montaja-icon.png na raiz do repositório.
+
+Ao atualizar o GitHub:
+1. Faz upload de TODOS os ficheiros desta pasta.
+2. Se o GitHub perguntar se queres substituir ficheiros com o mesmo nome, confirma.
+3. Confirma que logo.png, profile.jpg e montaja-icon.png aparecem ao lado de index.html.
+4. Faz Commit changes.
+5. Espera o GitHub Pages voltar a publicar.
+
+Não é necessário apagar o site GitHub Pages.
