@@ -36,19 +36,9 @@
 
     <main>
       <section id="homeView" class="view active">
-        <div class="home-hero">
-          <div class="hello-block">
-            <h1>Olá!</h1>
-            <p id="todaySummary">Tens serviços hoje</p>
-          </div>
-          <button class="home-date-card" id="heroDateCard" data-go="agendaView" aria-label="Abrir agenda">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-            <div>
-              <span id="heroDateWeekday">Hoje</span>
-              <strong id="heroDateFull">2 de outubro de 2025</strong>
-            </div>
-            <b>›</b>
-          </button>
+        <div class="hello-block">
+          <h1>Olá!</h1>
+          <p id="todaySummary">Tens serviços hoje</p>
         </div>
 
         <div id="weekStrip" class="week-strip" aria-label="Dias da semana"></div>
@@ -75,7 +65,7 @@
         <div class="page-head">
           <p class="eyebrow">ORGANIZAÇÃO</p>
           <h1>Agenda</h1>
-          <p>Organiza os teus serviços.</p>
+          <p>Escolhe um dia no calendário e vê o que tens marcado.</p>
         </div>
 
         <div class="calendar-card agenda-calendar-card">
@@ -106,7 +96,7 @@
         <div class="agenda-filter-card">
           <label class="search-box compact-search">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
-            <input id="jobSearch" placeholder="Pesquisar serviços, clientes..." />
+            <input id="jobSearch" placeholder="Pesquisar serviço ou cliente" />
           </label>
           <div class="filter-row">
             <select id="jobTypeFilter" aria-label="Filtrar por tipo"><option value="all">Todos os tipos</option><option value="tools">Montagem</option><option value="bed">Cama</option><option value="table">Mesa / secretária</option><option value="chair">Cadeira / sofá</option><option value="shelf">Estante / prateleira</option></select>
@@ -126,28 +116,22 @@
           <div>
             <p class="eyebrow">CONTACTOS</p>
             <h1>Clientes</h1>
-            <p>Contactos e histórico.</p>
+            <p>Histórico e serviços de cada cliente.</p>
           </div>
           <button class="round-add" id="newClientBtn" aria-label="Novo cliente">+</button>
         </div>
-        <label class="search-box client-search-box">
+        <label class="search-box">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
-          <input id="clientSearch" placeholder="Procurar clientes por nome, localidade..." />
+          <input id="clientSearch" placeholder="Pesquisar cliente" />
         </label>
-        <button class="client-promo-card" id="promoNewClient" type="button">
-          <span class="promo-icon">+</span>
-          <div><strong>Adicionar novo cliente</strong><small>Guarda contactos e histórico de serviços.</small></div>
-          <b>›</b>
-        </button>
-        <div class="section-title-row client-section-head"><h2>Os meus clientes</h2><span id="clientCountLabel">0 clientes</span></div>
-        <div id="clientsList" class="clients-list rich-clients-list"></div>
+        <div id="clientsList" class="clients-list"></div>
       </section>
 
       <section id="moreView" class="view">
         <div class="page-head">
           <p class="eyebrow">MONTAJÁ</p>
           <h1>Mais</h1>
-          <p>Resumo e definições.</p>
+          <p>Resumo e definições da tua conta.</p>
         </div>
         <div class="brand-card">
           <img class="brand-logo-large" src="logo.png" alt="MontaJá" />
