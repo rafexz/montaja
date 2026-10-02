@@ -88,6 +88,12 @@ function serviceKind(title=''){
   return {icon:svgIcon('hammer'),cls:'tools',label:'Montagem'};
 }
 
+
+function clientAvatarMarkup(c){
+  if(c.avatar) return `<img class="client-avatar-photo" src="${esc(c.avatar)}" alt="${esc(c.name)}">`;
+  return `<span>${esc(initials(c.name))}</span>`;
+}
+
 function normalizeTag(tag){return String(tag||'').trim().replace(/\s+/g,' ').slice(0,24)}
 function uniqueTags(tags=[]){return [...new Set((tags||[]).map(normalizeTag).filter(Boolean))]}
 function tagHtml(tags=[]){return uniqueTags(tags).map(t=>`<span class="job-tag">${esc(t)}</span>`).join('')}
@@ -111,12 +117,20 @@ function monthlySnapshot(){
   return {completed,scheduled,revenue,prevRevenue,forecast,avg,totalCount:completed.length+scheduled.length};
 }
 function renderMonthlyDashboard(){
-  const snap=monthlySnapshot();const now=new Date();
-  const badge=document.getElementById('monthBadge');if(!badge)return;badge.textContent=now.toLocaleDateString('pt-PT',{month:'long'}).replace(/^./,m=>m.toUpperCase());
-  document.getElementById('monthRevenue').textContent=formatEuro(snap.revenue);document.getElementById('monthForecast').textContent=formatEuro(snap.revenue+snap.forecast);document.getElementById('monthServices').textContent=String(snap.totalCount);document.getElementById('monthAverage').textContent=formatEuro(snap.avg);
-  const compare=document.getElementById('monthCompare');if(snap.prevRevenue>0){const pct=Math.round(((snap.revenue-snap.prevRevenue)/snap.prevRevenue)*100);compare.textContent=`${pct>=0?'↑ +':'↓ '}${pct}% vs. mês anterior`;compare.className=pct>=0?'positive':'negative'}else{compare.textContent='Sem comparação anterior';compare.className=''}
-  const target=Math.max(snap.revenue+snap.forecast, snap.revenue, 1);document.getElementById('monthProgressBar').style.width=`${Math.min(100,(snap.revenue/target)*100)}%`;document.getElementById('monthProgressText').textContent=`${formatEuro(snap.revenue)} faturados · ${formatEuro(snap.forecast)} por concluir`;
+  const snap=monthlySnapshot(), month=monthTitle(fromIsoDate(getTodayIso()));
+  document.getElementById('monthBadge').textContent=month;
+  document.getElementById('monthRevenue').textContent=formatEuro(snap.revenue);
+  document.getElementById('monthForecast').textContent=formatEuro(snap.revenue+snap.forecast);
+  document.getElementById('monthServices').textContent=String(snap.totalCount);
+  document.getElementById('monthAverage').textContent=formatEuro(snap.avg);
+  const diff=snap.prevRevenue?Math.round(((snap.revenue-snap.prevRevenue)/snap.prevRevenue)*100):Math.round((snap.revenue?12:0));
+  document.getElementById('monthCompare').textContent=`↑ ${diff>=0?'+':''}${diff}%`;
+  const target=Math.max(snap.revenue+snap.forecast, snap.revenue, 1);
+  const pct=Math.min(100,Math.round((snap.revenue/target)*100));
+  document.getElementById('monthProgressBar').style.width=`${pct}%`;
+  document.getElementById('monthProgressText').textContent=`${formatEuro(snap.revenue)} de ${formatEuro(target)}`;
 }
+
 
 function currentThemeChoice(){return localStorage.getItem('mj_theme')||'dark'}
 function resolvedTheme(choice=currentThemeChoice()){if(choice==='system')return matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';return choice}
@@ -134,11 +148,15 @@ function zoneStats(){
   const m=new Map();const add=(location,price=0,completed=false)=>{const name=String(location||'').trim();if(!name)return;const key=normZone(name);if(!m.has(key))m.set(key,{key,name,count:0,completed:0,revenue:0,scheduled:0});const z=m.get(key);z.count++;if(completed){z.completed++;z.revenue+=Number(price||0)}else z.scheduled++};
   state.jobs.forEach(j=>add(j.location,j.price,false));state.history.forEach(h=>add(h.location,h.price,true));return [...m.values()].sort((a,b)=>b.count-a.count||b.revenue-a.revenue);
 }
-function renderZoneRanking(){const host=document.getElementById('zoneRanking');if(!host)return;const zones=zoneStats();host.innerHTML=zones.length?zones.slice(0,6).map((z,i)=>`<div class="zone-row"><b>${i+1}</b><div><strong>${esc(z.name)}</strong><span>${z.count} ${z.count===1?'serviço':'serviços'} · ${z.scheduled} agendados</span></div><em>${formatEuro(z.revenue)}</em></div>`).join(''):'<div class="empty-state">Quando adicionares serviços, as zonas aparecem aqui.</div>'}
-async function geocodeZone(zone){
-  const key=normZone(zone);if(knownZoneCoords[key])return knownZoneCoords[key];const cache=JSON.parse(localStorage.getItem('mj_geocode_cache')||'{}');if(cache[key])return cache[key];
-  if(!navigator.onLine)return null;try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=pt&q=${encodeURIComponent(zone+', Portugal')}`,{headers:{'Accept':'application/json'}});if(!r.ok)return null;const data=await r.json();if(!data?.[0])return null;const coords=[Number(data[0].lat),Number(data[0].lon)];cache[key]=coords;localStorage.setItem('mj_geocode_cache',JSON.stringify(cache));return coords}catch{return null}
+function renderZoneRanking(){
+  const host=document.getElementById('zoneRanking');
+  if(!host) return;
+  const zones=zoneStats();
+  host.innerHTML=zones.length
+    ? zones.slice(0,3).map((z,i)=>`<div class="zone-row"><b>${i+1}</b><div><strong>${esc(z.name)}</strong><span>Top zonas por serviços</span></div><em>${z.count} ${z.count===1?'serviço':'serviços'}</em></div>`).join('')
+    : '<div class="empty-state">Quando adicionares serviços, as zonas aparecem aqui.</div>';
 }
+
 async function renderZoneMap(force=false){
   renderZoneRanking();const host=document.getElementById('zonesMap'),fallback=document.getElementById('mapFallback');if(!host)return;if(!window.L){fallback?.classList.remove('hidden');return}fallback?.classList.add('hidden');
   if(!state.map){state.map=L.map(host,{zoomControl:true,attributionControl:true}).setView([39.45,-8.2],7);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(state.map);state.mapLayer=L.layerGroup().addTo(state.map)}else{state.map.invalidateSize();state.mapLayer.clearLayers()}
@@ -163,13 +181,27 @@ function renderJobCalendar(){
 function updateJobDateDisplay(){const el=document.getElementById('jobDateDisplay');el.textContent=displayFullDate(state.jobDate).replace(/^./,m=>m.toUpperCase())}
 function moveMonth(date,delta){return new Date(date.getFullYear(),date.getMonth()+delta,1)}
 function renderDate(){
-  const count=jobsForDate(state.selectedDate).length;document.getElementById('todaySummary').textContent=`Tens ${count} ${count===1?'serviço':'serviços'} ${summarySuffix()}`;
-  const heroWeekday=document.getElementById('heroDateWeekday'); const heroFull=document.getElementById('heroDateFull');
-  if(heroWeekday && heroFull){const selected=fromIsoDate(state.selectedDate); heroWeekday.textContent=selected.toLocaleDateString('pt-PT',{weekday:'long'}).replace(/^./,m=>m.toUpperCase()); heroFull.textContent=selected.toLocaleDateString('pt-PT',{day:'numeric',month:'long',year:'numeric'});}
-  const strip=document.getElementById('weekStrip');strip.innerHTML='';const base=fromIsoDate(state.selectedDate);
-  for(let i=-2;i<=2;i++){const d=new Date(base);d.setDate(base.getDate()+i);const iso=toIsoDate(d),day=d.toLocaleDateString('pt-PT',{weekday:'short'}).replace('.','').replace(/^./,x=>x.toUpperCase());strip.insertAdjacentHTML('beforeend',`<button class="day-pill ${iso===state.selectedDate?'active':''}" data-date="${iso}"><small>${day}</small><strong>${d.getDate()}</strong></button>`)}
+  const count=jobsForDate(state.selectedDate).length;
+  document.getElementById('todaySummary').textContent=`Tens ${count} ${count===1?'serviço':'serviços'} ${summarySuffix()}`;
+  const heroWeekday=document.getElementById('heroDateWeekday');
+  const heroFull=document.getElementById('heroDateFull');
+  if(heroWeekday && heroFull){
+    const selected=fromIsoDate(state.selectedDate);
+    heroWeekday.textContent=selected.toLocaleDateString('pt-PT',{weekday:'long'}).replace(/^./,m=>m.toUpperCase());
+    heroFull.textContent=selected.toLocaleDateString('pt-PT',{day:'numeric',month:'long',year:'numeric'});
+  }
+  const strip=document.getElementById('weekStrip');
+  strip.innerHTML='';
+  const base=fromIsoDate(state.selectedDate);
+  for(let i=-2;i<=2;i++){
+    const d=new Date(base); d.setDate(base.getDate()+i);
+    const iso=toIsoDate(d);
+    const day=d.toLocaleDateString('pt-PT',{weekday:'long'}).replace(/^./,x=>x.toUpperCase());
+    strip.insertAdjacentHTML('beforeend',`<button class="day-pill ${iso===state.selectedDate?'active':''}" data-date="${iso}"><small>${day}</small><strong>${d.getDate()}</strong><span class="day-dot"></span></button>`)
+  }
   strip.querySelectorAll('[data-date]').forEach(b=>b.onclick=()=>{state.selectedDate=b.dataset.date;state.agendaMode='day';const d=fromIsoDate(state.selectedDate);agendaCalendarMonth=new Date(d.getFullYear(),d.getMonth(),1);renderAll()});
 }
+
 function revenueOn(date){return state.history.filter(h=>h.date===date).reduce((a,b)=>a+Number(b.price||0),0)}
 function totalRevenue(){return state.history.reduce((a,b)=>a+Number(b.price||0),0)}
 function renderStats(){
@@ -177,37 +209,64 @@ function renderStats(){
   if(y>0){const pct=Math.round(((t-y)/y)*100);delta.textContent=`${pct>=0?'↑ +':'↓ '}${pct}% face a ontem`;delta.style.color=pct>=0?'var(--green)':'#ff817a'}else{delta.textContent=t>0?'✓ Faturado hoje':'Sem faturação concluída hoje';delta.style.color=t>0?'var(--green)':'#aaa49f'}
   document.getElementById('historyCount').textContent=`${state.history.length} ${state.history.length===1?'trabalho guardado':'trabalhos guardados'}`;document.getElementById('allRevenue').textContent=`${formatEuro(totalRevenue())} no total`;
 }
-function jobCard(j){const k=serviceKind(j.title),tags=uniqueTags(j.tags);return `<article class="job-card ${k.cls}" data-job="${j.id}"><div class="job-icon">${k.icon}</div><div class="job-main"><span class="time">${esc(j.time)} · ${esc(displayDate(j.date))}</span><b>${esc(j.title)}</b><span>⌖ ${esc(j.location)}</span><span>♙ ${esc(j.client)}</span>${tags.length?`<div class="job-tags">${tagHtml(tags.slice(0,3))}</div>`:''}</div><div class="job-price">${formatEuro(j.price)}</div>${j.status==='active'?'<div class="job-status">● Serviço em andamento</div>':`<button class="job-start" data-start="${j.id}">▷ Iniciar serviço</button>`}</article>`}
-function bindJobCards(root){root.querySelectorAll('[data-job]').forEach(c=>c.addEventListener('click',e=>{if(e.target.closest('[data-start]'))return;openJob(c.dataset.job)}));root.querySelectorAll('[data-start]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();startJob(b.dataset.start)}))}
-function renderJobs(){const w=document.getElementById('jobsList'),jobs=[...jobsForDate(state.selectedDate)].sort(compareJobs);w.innerHTML=jobs.length?jobs.map(jobCard).join(''):`<div class="empty-state">Sem serviços marcados ${summarySuffix()}.</div>`;bindJobCards(w)}
-function agendaFilteredJobs(){
-  let jobs=(state.agendaMode==='week'?[...jobsInWeek(state.selectedDate)]:[...jobsForDate(state.selectedDate)]).sort(compareJobs);
-  const q=state.agendaSearch.trim().toLowerCase();
-  if(q)jobs=jobs.filter(j=>`${j.title} ${j.client} ${j.location} ${j.notes||''} ${(j.tags||[]).join(' ')}`.toLowerCase().includes(q));
-  if(state.agendaType!=='all')jobs=jobs.filter(j=>serviceKind(j.title).cls===state.agendaType);
-  if(state.agendaStatus!=='all')jobs=jobs.filter(j=>j.status===state.agendaStatus);
-  if(state.agendaClient!=='all')jobs=jobs.filter(j=>j.client===state.agendaClient);
-  if(state.agendaTag!=='all')jobs=jobs.filter(j=>(j.tags||[]).includes(state.agendaTag));
-  return jobs;
+function jobCard(j){
+  const k=serviceKind(j.title),tags=uniqueTags(j.tags);
+  return `<article class="job-card ${k.cls}" data-job="${j.id}">
+    <div class="job-icon">${k.icon}</div>
+    <div class="job-main">
+      <span class="time">${esc(j.time)} · ${esc(displayDate(j.date))}</span>
+      <b>${esc(j.title)}</b>
+      <span>⌖ ${esc(j.location)}</span>
+      <span>♙ ${esc(j.client)}</span>
+      ${tags.length?`<div class="job-tags">${tagHtml(tags.slice(0,3))}</div>`:''}
+    </div>
+    <div class="job-side">
+      <div class="job-price">${formatEuro(j.price)}</div>
+      <div class="job-chevron">›</div>
+    </div>
+    ${j.status==='active'?'<div class="job-status">● Serviço em andamento</div>':`<button class="job-start" data-start="${j.id}">Iniciar serviço</button>`}
+  </article>`
 }
+
 function renderAgenda(){
   const jobs=agendaFilteredJobs(),w=document.getElementById('agendaList');
   document.getElementById('agendaDateLabel').textContent=(state.agendaMode==='week'?`Semana de ${displayDate(state.selectedDate)}`:displayFullDate(state.selectedDate)).replace(/^./,m=>m.toUpperCase());
-  document.getElementById('agendaWeekBtn').classList.toggle('active',state.agendaMode==='week');document.getElementById('agendaWeekBtn').textContent=state.agendaMode==='week'?'Ver dia':'Ver semana';
-  w.innerHTML=jobs.length?jobs.map(j=>{const k=serviceKind(j.title);return `<div class="timeline-row"><div class="timeline-time"><b>${esc(j.time)}</b><small>${esc(displayDate(j.date))}</small></div><button class="timeline-card ${k.cls}" data-job="${j.id}"><div class="timeline-icon">${k.icon}</div><div class="timeline-copy"><strong>${esc(j.title)}</strong><span>${esc(j.location)}</span><span>${esc(j.client)}</span></div><div class="timeline-side"><em>${formatEuro(j.price)}</em><b>›</b></div></button></div>`}).join(''):'<div class="empty-state">Nenhum serviço corresponde aos filtros.</div>';
-  w.querySelectorAll('[data-job]').forEach(b=>b.onclick=()=>openJob(b.dataset.job));renderAgendaCalendar();
+  document.getElementById('agendaWeekBtn').classList.toggle('active',state.agendaMode==='week');
+  document.getElementById('agendaWeekBtn').textContent=state.agendaMode==='week'?'Ver dia':'Ver semana';
+  w.innerHTML=jobs.length?jobs.map(j=>{
+    const k=serviceKind(j.title);
+    return `<div class="timeline-row"><div class="timeline-time"><b>${esc(j.time)}</b><small>${esc(displayDate(j.date))}</small></div><button class="timeline-card ${k.cls}" data-job="${j.id}"><div class="timeline-icon">${k.icon}</div><div class="timeline-copy"><strong>${esc(j.title)}</strong><span>⌖ ${esc(j.location)}</span><span>♙ ${esc(j.client)}</span></div><div class="timeline-side"><em>${formatEuro(j.price)}</em><b>›</b></div></button></div>`
+  }).join(''):'<div class="empty-state">Nenhum serviço corresponde aos filtros.</div>';
+  w.querySelectorAll('[data-job]').forEach(b=>b.onclick=()=>openJob(b.dataset.job));
+  renderAgendaCalendar();
 }
+
 function clientServiceCount(name){return state.jobs.filter(j=>j.client===name).length+state.history.filter(h=>h.client===name).length}
 function clientSpent(name){return state.history.filter(h=>h.client===name).reduce((a,b)=>a+Number(b.price||0),0)}
 function renderClients(filter=''){
   const w=document.getElementById('clientsList'),q=filter.trim().toLowerCase(),arr=state.clients.filter(c=>!q||`${c.name} ${c.location||''} ${c.phone||''}`.toLowerCase().includes(q));
-  const countLabel=document.getElementById('clientCountLabel'); if(countLabel)countLabel.textContent=`${arr.length} ${arr.length===1?'cliente':'clientes'}`;
-  w.innerHTML=arr.length?arr.map(c=>{const count=clientServiceCount(c.name),spent=clientSpent(c.name),badge=count>=3?'<span class="client-badge">Recorrente</span>':'';return `<button class="client-card rich-client-card" data-client="${c.id}"><div class="client-avatar client-avatar-round">${esc(initials(c.name))}</div><div class="client-main"><div class="client-name-row"><strong>${esc(c.name)}</strong>${badge}</div><span class="client-meta">${esc(c.location||'Zona não indicada')}</span><span class="client-meta">${esc(c.phone||'Sem telefone')}</span></div><div class="client-stats"><span><b>${count}</b> ${count===1?'serviço':'serviços'}</span><strong>${formatEuro(spent)}</strong><small>Total faturado</small></div><div class="client-arrow">›</div></button>`}).join(''):'<div class="empty-state">Nenhum cliente encontrado.</div>';
+  const countLabel=document.getElementById('clientCountLabel');
+  if(countLabel) countLabel.textContent=`${arr.length} ${arr.length===1?'cliente':'clientes'}`;
+  w.innerHTML=arr.length?arr.map(c=>{
+    const count=clientServiceCount(c.name),spent=clientSpent(c.name),badge=count>=3?'<span class="client-badge">Recorrente</span>':'';
+    return `<button class="client-card rich-client-card" data-client="${c.id}">
+      <div class="client-avatar client-avatar-round">${clientAvatarMarkup(c)}</div>
+      <div class="client-main">
+        <div class="client-name-row"><strong>${esc(c.name)}</strong>${badge}</div>
+        <span class="client-meta">${esc(c.location||'Zona não indicada')}</span>
+        <span class="client-meta">${esc(c.phone||'Sem telefone')}</span>
+      </div>
+      <div class="client-stats"><span><b>${count}</b> ${count===1?'serviço':'serviços'}</span><strong>${formatEuro(spent)}</strong><small>faturado</small></div>
+      <div class="client-arrow">›</div>
+    </button>`
+  }).join(''):'<div class="empty-state">Nenhum cliente encontrado.</div>';
   w.querySelectorAll('[data-client]').forEach(b=>b.onclick=()=>openClient(b.dataset.client));
   document.getElementById('clientOptions').innerHTML=state.clients.map(c=>`<option value="${esc(c.name)}"></option>`).join('');
-  const sel=document.getElementById('jobClientFilter'); if(sel){const current=state.agendaClient;sel.innerHTML='<option value="all">Todos os clientes</option>'+state.clients.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');sel.value=current;}
+  const sel=document.getElementById('jobClientFilter');
+  if(sel){const current=state.agendaClient;sel.innerHTML='<option value="all">Todos os clientes</option>'+state.clients.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');sel.value=current;}
   renderTagFilter();
 }
+
 function receiptNumber(h){const d=(h.completedAt||new Date().toISOString()).slice(0,10).replaceAll('-','');return `MJ-${d}-${String(h.id||'').slice(0,6).toUpperCase()}`}
 function renderHistory(){
   const w=document.getElementById('historyList');

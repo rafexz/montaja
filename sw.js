@@ -1,4 +1,4 @@
-const CACHE='montaja-github-v7';
+const CACHE='montaja-github-v8';
 const ASSETS=['./','./index.html','./styles.css','./app.js','./cloud-config.js','./manifest.webmanifest','./logo.png','./profile.jpg','./montaja-icon.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',e=>e.waitUntil(Promise.all([self.clients.claim(),caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))])));
